@@ -19,7 +19,6 @@ import dev.mattdebinion.onex3streamer.camera.CameraConnectionManager
 import dev.mattdebinion.onex3streamer.camera.CameraPreviewManager
 import dev.mattdebinion.onex3streamer.camera.CameraViewModel
 import dev.mattdebinion.onex3streamer.databinding.FragmentHomeBinding
-import dev.mattdebinion.onex3streamer.permissions.PermissionsViewModel
 import dev.mattdebinion.onex3streamer.ui.settings.GeneralViewModel
 
 /**
@@ -172,10 +171,14 @@ class HomeFragment : Fragment(), ConnectTypeDialogFragment.ConnectTypeDialogList
                 val elapsedTime = System.currentTimeMillis() - startTime
                 if(cameraViewModel.isCameraConnected.value == true) {
                     Log.i("HomeFragment", "The supported resolutions are: ")
-                    Log.i("HomeFragment", InstaCameraManager.getInstance().getSupportedPreviewStreamResolution(InstaCameraManager.PREVIEW_TYPE_LIVE).toString())
+                    val supportedList = InstaCameraManager.getInstance().getSupportedPreviewStreamResolution(InstaCameraManager.PREVIEW_TYPE_LIVE)
+                    Log.i("HomeFragment", supportedList.toString())
+
+                    // TODO: add options to change the resolution?
                     Log.i("HomeFragment", "Launching the preview stream :3")
                     InstaCameraManager.getInstance().setPreviewStatusChangedListener(cameraPreviewManager)
-                    InstaCameraManager.getInstance().startPreviewStream(PreviewStreamResolution.STREAM_2560_1280_30FPS,InstaCameraManager.PREVIEW_TYPE_LIVE)
+                    InstaCameraManager.getInstance().startPreviewStream(PreviewStreamResolution.STREAM_1920_960_30FPS,InstaCameraManager.PREVIEW_TYPE_LIVE)
+
                     handler.removeCallbacks(this)
                 } else if(elapsedTime >= 10000) {
                     Log.e("HomeFragment", "Unable to connect.")
