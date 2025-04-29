@@ -76,23 +76,17 @@ class HomeFragment : Fragment(), ConnectTypeDialogFragment.ConnectTypeDialogList
     override fun onConfirmClick(dialog: DialogFragment, connectType: Int) {
         Log.i("HomeFragment", "Confirmed click for $connectType")
 
-        Log.i("HomeFragment", "Camera connection status: ${cameraViewModel.isCameraConnected.value}")
-        if(cameraViewModel.isCameraConnected.value == false) {
+        if (cameraViewModel.isCameraConnected.value == false) {
             val ssid = generalViewModel.cameraSSID.value.toString()
             val password = generalViewModel.cameraPass.value.toString()
 
-
             cameraConnectionManager = CameraConnectionManager(cameraViewModel, requireContext(), ssid, password)
             startCameraConnectionProcess(connectType, cameraConnectionManager)
-
-        } else if (cameraViewModel.isCameraConnected.value == true) {
-            cameraConnectionManager.disconnectCamera()
         }
-
     }
 
     override fun onCancelClick(dialog: DialogFragment) {
-        Log.i("HomeFragment", "Cancel click!")
+        Log.i("HomeFragment", "User cancelled connection dialog.")
     }
 
     /**
@@ -154,10 +148,20 @@ class HomeFragment : Fragment(), ConnectTypeDialogFragment.ConnectTypeDialogList
     }
 
     private fun setButtonListeners() {
-        binding.buttonConnection.setOnClickListener { _ ->
-            val promptConnectType = ConnectTypeDialogFragment()
-            promptConnectType.setListener(this)
-            promptConnectType.show(parentFragmentManager, "ConnectTypeDialogFragment")
+        binding.buttonConnection.setOnClickListener {
+            if (cameraViewModel.isCameraConnected.value == true) {
+                // Directly disconnect without dialog
+                if (::cameraConnectionManager.isInitialized) {
+                    cameraConnectionManager.disconnectCamera()
+                } else {
+                    Log.w("HomeFragment", "Attempted to disconnect, but cameraConnectionManager was not initialized.")
+                }
+            } else {
+                // Show connection type dialog
+                val promptConnectType = ConnectTypeDialogFragment()
+                promptConnectType.setListener(this)
+                promptConnectType.show(parentFragmentManager, "ConnectTypeDialogFragment")
+            }
         }
     }
 
